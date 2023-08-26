@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    /* Your custom CSS rules */
+    .circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #0000FF;
+      animation: transformCircle 5s linear forwards;
+    }
+  }
+
+@keyframes transformCircle {
+  0% {
+    transform: scale(1);
+    background-color: #0000FF;
+  }
+  100% {
+    transform: scale(0);
+    background-color: #FF0000;
+  }
+}
