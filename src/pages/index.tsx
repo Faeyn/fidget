@@ -1,32 +1,20 @@
-import Head from "next/head";
-import getRandomValue from "./engine/random";
-import Circle from "./elements/Circle";
-import { useEffect, useState } from "react";
-import Board from "./board";
+import { useRouter } from "next/router";
+
 
 export default function Home() {
-  const [left, setLeft] = useState(0)
-  const [top, setTop] = useState(0)
-
-  useEffect(() => {
-    const windowY = window.innerHeight - 100
-    const windowX = window.innerWidth - 100
-
-    setLeft(getRandomValue(100, windowX))
-    setTop(getRandomValue(100, windowY))
-  }, []);
-
-  console.log(top, left)
-
+  const router = useRouter()
   return (
-    <>
-      <Head>
-        <title>HTA Fidget</title>
-        <meta name="description" content="Fidgeting" />
-        <link rel="icon" href="/h-log.png" />
-      </Head>
-      <Board />
-      <Circle left={left} top={top}/>
-    </>
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <div className="flex flex-col h-full justify-center">
+            <div 
+              onClick={()=>{void router.push('/game')}}
+              className="border-[5px] px-[50px] py-[20px] border-solid border-black text-xl rounded-[30px]">
+                Start Game
+
+              </div>
+          </div>
+        </div>
+      </div>
   );
 }
