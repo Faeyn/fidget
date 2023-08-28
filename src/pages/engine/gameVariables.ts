@@ -1,2 +1,9 @@
-export const circleSize = 50
-export const boardBoarder = 50
+export const circleSize = 100
+
+export type Score = {
+    score: number,
+    seconds: number,
+    totalClicks: number,
+    clickSpeed: number,
+    maxSpeed: number,
+}

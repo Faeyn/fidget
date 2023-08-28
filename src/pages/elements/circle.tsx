@@ -1,34 +1,52 @@
-import { useState } from "react"
-import { boardBoarder, circleSize } from "../engine/gameVariables"
-import getRandomValue from "../engine/random"
-import type { WindowSize } from "./elementTypes"
+import { useRouter } from "next/router"
+import { circleSize } from "../engine/gameVariables"
+import type { Position } from "./elementTypes"
+import React, { useState } from "react"
 
 type CircleProps = {
-  windowSize: WindowSize
+  circlePosition: Position
   onClick: () => void
+  onAnimationEnd: () => void
 }
 
 
-const Circle: React.FC<CircleProps> = ({windowSize, onClick}): JSX.Element => { 
+const Circle: React.FC<CircleProps> = ({circlePosition, onClick, onAnimationEnd}): JSX.Element => { 
 
-  const left = getRandomValue(boardBoarder, windowSize.X - boardBoarder - circleSize)
-  const top = getRandomValue(boardBoarder, windowSize.Y  - boardBoarder - circleSize)
+
+  const [isAnimating, setIsAnimating] = useState(true);
+  const [isClicked, setIsClicked] = useState(false)
+
+  const handleClick = () => {
+
+      setIsClicked(true)
+      setIsAnimating(false)
+
+      // Reset animation after a brief delay
+      setTimeout(() => {
+          setIsAnimating(true)
+          setIsClicked(false)
+          onClick()
+      }, 15);
+  };
 
   return (
   <>
     <div 
-    className={`circle absolute`} 
+    className={`circle ${isAnimating ? 'animate-circle-animation' : ''} ${isClicked ? 'animation: clickedAnimation 0.01s linear forward' : ''}`} 
     style={{
         width: circleSize,
         height: circleSize,
         position: 'fixed',
-        left,
-        top,
+        left: circlePosition.X,
+        top: circlePosition.Y,
       }}
-    onClick={onClick}
+    onAnimationEnd={!isClicked ? onAnimationEnd : () => {}}
+    onClick={handleClick}
       />
   </>
 )
 }
+
+Circle.displayName = 'Circle'
 
 export default Circle

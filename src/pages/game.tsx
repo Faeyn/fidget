@@ -1,18 +1,40 @@
-import Board from "./elements/board";
+import Board from "./component/board";
 import HeadComponent from "./component/head";
-import type { WindowSize } from "./elements/elementTypes";
+import type { Position, WindowSize } from "./elements/elementTypes";
 import Circle from "./elements/circle";
 import { useEffect, useState } from "react";
+import getRandomValue from "./engine/random";
+import { boardBorder } from "./component/UIVariables";
+import { type Score, circleSize } from "./engine/gameVariables";
+import ScoreBoard from "./component/scoreBoard";
+import Button from "./component/button";
+import FinalScoreBoard from "./component/finalScoreBoard";
+
+const initialScore: Score = {
+    score: 0,
+    seconds: 0,
+    totalClicks: 0,
+    clickSpeed: 0,
+    maxSpeed: 0,
+}
 
 export default function Game() {
     const [windowSize, setWindowSize] = useState<WindowSize>({
         X: 0,
         Y: 0,
     })
+    const [score, setScore] = useState<Score>(initialScore)
+    const [seconds, setSeconds] = useState(0);
+    const [circlePositions, setCirclePositions] = useState<Array<Position>>([])
+    const [isPlaying, setIsPlaying] = useState<boolean>(true)
 
-    const [score, setScore] = useState<number>(0)
+    const resetGameStates = () => {
+        setSeconds(0)
+        setCirclePositions([getPosition()])
+        setScore(initialScore)
+        setIsPlaying(true)
+    }
 
-    console.log(score)
     useEffect(() => {
         setWindowSize({
             X: window.innerWidth,
@@ -34,13 +56,94 @@ export default function Game() {
 
     }, [])
 
+    useEffect(() => {
+        setCirclePositions([getPosition()])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [windowSize])
+    
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+        setSeconds((prevSeconds) => prevSeconds + 1);
+        }, 1000);
+    
+        return () => {
+        clearInterval(intervalId);
+        };
+    }, []);
 
-    return (
+    function getPosition() {return {
+        X: getRandomValue(boardBorder, windowSize.X - boardBorder - circleSize),
+        Y: getRandomValue(boardBorder, windowSize.Y  - boardBorder - circleSize),
+    }}
+
+    const clickSpeed = +(seconds === 0 ? 0 : (score.score / seconds).toFixed(2))
+    
+    const updateCirclePosition = (index: number): void => {
+        const newPositions = [...circlePositions]
+        newPositions[index] = getPosition()
+        setCirclePositions(newPositions)
+    }
+
+    // // Score driven
+    // useEffect(() => {
+    //     const scoreCurve = Array.from({ length: 20 }, (_, index) => 10 + index * 20)
+    //     if (scoreCurve.includes(score.score)) {
+    //         updateCirclePosition(circlePositions.length)
+    //     } 
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [score.score])
+
+    // Time driven
+    useEffect(() => {
+        if (seconds > 0 && seconds % 20 === 0) {
+            updateCirclePosition(circlePositions.length)
+        } 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [seconds])
+
+    useEffect(() => {
+        setScore((prevScore) => (
+            {
+                ...prevScore,
+                ["clickSpeed"]: clickSpeed,
+                ["maxSpeed"]:  Math.max(clickSpeed, prevScore.maxSpeed),
+            }))
+    }, [clickSpeed])
+
+    if (isPlaying) {
+        return (
         <>
-            <HeadComponent/>
-            <Board windowSize={windowSize}/>
-            <Circle windowSize={windowSize} onClick={() => {setScore(score + 1)}}/>
+            <HeadComponent />
+            <Board windowSize={windowSize} onClick={() => {setScore((prevScore) => ({...prevScore, ["totalClicks"]: prevScore.totalClicks + 1}))}}>
+                <>
+                    <ScoreBoard score={score}/>
+                    {circlePositions.map((position, index) => 
+                    <Circle 
+                        key={index} 
+                        circlePosition={position} 
+                        onClick={() => {
+                            setScore((prevScore) => ({...prevScore, ["score"]: prevScore.score +1}))
+                            updateCirclePosition(index)
+                        }}
+                        onAnimationEnd={() => {
+                            setScore((prevScore) => ({...prevScore, ["seconds"]: seconds}))
+                            setIsPlaying(false)
+                        }}/>
+                    )}
+                </> 
+            </Board>
         </>
-    );
-
+        )
+    } else {
+        return (
+        <>
+            <HeadComponent />
+            <Board windowSize={windowSize}>
+                <div className="flex h-full flex-col justify-center">
+                    <Button text={'Start new game'} onClick={resetGameStates}/>
+                    <FinalScoreBoard score={score}/>
+                </div>
+            </Board>
+        </>
+    )}
 }
