@@ -80,7 +80,27 @@ export default function Game() {
     
     const updateCirclePosition = (index: number): void => {
         const newPositions = [...circlePositions]
-        newPositions[index] = getPosition()
+        let isOverlapping = true
+
+        while (isOverlapping) {
+            const newPosition = getPosition()
+            isOverlapping = circlePositions.some((position) => {
+                return (
+                    newPosition.X - circleSize < position.X + circleSize && newPosition.X + circleSize > position.X && 
+                    newPosition.Y - circleSize < position.Y + circleSize && newPosition.Y + circleSize > position.Y)
+            })
+
+            console.log(circlePositions.map((position) => {
+                return (newPosition.X < position.X + circleSize && newPosition.X > position.X && newPosition.Y < position.Y + circleSize && newPosition.Y > position.Y)
+            }))
+            // console.log(temp)
+            // isOverlapping = false
+            console.log(isOverlapping)
+            if (!isOverlapping) {
+                newPositions[index] = getPosition()
+            }
+        }
+
         setCirclePositions(newPositions)
     }
 

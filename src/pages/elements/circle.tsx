@@ -40,7 +40,7 @@ const Circle: React.FC<CircleProps> = ({circlePosition, onClick, onAnimationEnd}
         left: circlePosition.X,
         top: circlePosition.Y,
       }}
-    onAnimationEnd={!isClicked ? onAnimationEnd : () => {}}
+    onAnimationEnd={!isClicked ? onAnimationEnd : ()=>{''}}
     onClick={handleClick}
       />
   </>
