@@ -6,6 +6,16 @@
     .circle {
       border-radius: 50%;
       background-color: #0000FF;
+      border: 10px;
+      border: solid;
+      border-color: black;
+    }
+    .innerCircle {
+      border-radius: 50%;
+      background-color: #00aaff;
+      border: 10px;
+      border: solid;
+      border-color: black;
     }
   }
 

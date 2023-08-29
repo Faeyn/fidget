@@ -84,36 +84,19 @@ export default function Game() {
 
         while (isOverlapping) {
             const newPosition = getPosition()
+
             isOverlapping = circlePositions.some((position) => {
-                return (
-                    newPosition.X - circleSize < position.X + circleSize && newPosition.X + circleSize > position.X && 
-                    newPosition.Y - circleSize < position.Y + circleSize && newPosition.Y + circleSize > position.Y)
+                return ((newPosition.X - position.X)**2 + (newPosition.Y - position.Y)**2 < 2*circleSize**2)
             })
 
-            console.log(circlePositions.map((position) => {
-                return (newPosition.X < position.X + circleSize && newPosition.X > position.X && newPosition.Y < position.Y + circleSize && newPosition.Y > position.Y)
-            }))
-            // console.log(temp)
-            // isOverlapping = false
-            console.log(isOverlapping)
             if (!isOverlapping) {
-                newPositions[index] = getPosition()
+                newPositions[index] = newPosition
             }
         }
 
         setCirclePositions(newPositions)
     }
 
-    // // Score driven
-    // useEffect(() => {
-    //     const scoreCurve = Array.from({ length: 20 }, (_, index) => 10 + index * 20)
-    //     if (scoreCurve.includes(score.score)) {
-    //         updateCirclePosition(circlePositions.length)
-    //     } 
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [score.score])
-
-    // Time driven
     useEffect(() => {
         if (seconds > 0 && seconds % 20 === 0) {
             updateCirclePosition(circlePositions.length)

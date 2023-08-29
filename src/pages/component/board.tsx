@@ -9,15 +9,15 @@ type BoardProps = {
 
 const Board: React.FC<BoardProps>= ({windowSize, onClick, children}): JSX.Element => {
     const boardStyle = {
-        width: windowSize.X - 2*boardBorder,
-        height: windowSize.Y - 2*boardBorder,
+        width: Math.max(windowSize.X - 2*boardBorder, 500),
+        height: Math.max(windowSize.Y - 2*boardBorder, 500),
         left: boardBorder,
         top: boardBorder,
     }
     
     return (
         <div 
-        className={`absolute flex justify-center border-[4px] rounded-[50px] border-solid border-black`}
+        className={`absolute flex justify-center border-[4px] rounded-[50px] border-solid border-black bg-slate-200`}
         onClick={onClick}
         style={boardStyle}>
             {children}

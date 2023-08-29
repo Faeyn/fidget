@@ -1,4 +1,3 @@
-import { useRouter } from "next/router"
 import { circleSize } from "../engine/gameVariables"
 import type { Position } from "./elementTypes"
 import React, { useState } from "react"
@@ -9,10 +8,7 @@ type CircleProps = {
   onAnimationEnd: () => void
 }
 
-
 const Circle: React.FC<CircleProps> = ({circlePosition, onClick, onAnimationEnd}): JSX.Element => { 
-
-
   const [isAnimating, setIsAnimating] = useState(true);
   const [isClicked, setIsClicked] = useState(false)
 
@@ -32,7 +28,7 @@ const Circle: React.FC<CircleProps> = ({circlePosition, onClick, onAnimationEnd}
   return (
   <>
     <div 
-    className={`circle ${isAnimating ? 'animate-circle-animation' : ''} ${isClicked ? 'animation: clickedAnimation 0.01s linear forward' : ''}`} 
+    className={`circle ${isAnimating ? 'animate-circle-animation' : ''} ${isClicked ? 'animation: clickedAnimation 0.015s linear forward' : ''}`} 
     style={{
         width: circleSize,
         height: circleSize,
@@ -43,9 +39,19 @@ const Circle: React.FC<CircleProps> = ({circlePosition, onClick, onAnimationEnd}
     onAnimationEnd={!isClicked ? onAnimationEnd : ()=>{''}}
     onClick={handleClick}
       />
+    <div 
+    className={"innerCircle"} 
+    style={{
+      width: circleSize/10,
+      height: circleSize/10,
+      position: 'fixed',
+      left: circlePosition.X + circleSize*9/20,
+      top: circlePosition.Y + circleSize*9/20,
+    }}
+    onClick={handleClick}
+    />
   </>
-)
-}
+)}
 
 Circle.displayName = 'Circle'
 
