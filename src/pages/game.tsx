@@ -1,14 +1,14 @@
-import Board from "./component/board";
-import HeadComponent from "./component/head";
-import type { Position, WindowSize } from "./elements/elementTypes";
-import Circle from "./elements/circle";
+import Board from "../component/board";
+import HeadComponent from "../component/head";
+import type { Position, WindowSize } from "../elements/elementTypes";
+import Circle from "../elements/circle";
 import { useEffect, useState } from "react";
-import getRandomValue from "./engine/random";
-import { boardBorder } from "./component/UIVariables";
-import { type Score, circleSize } from "./engine/gameVariables";
-import ScoreBoard from "./component/scoreBoard";
-import Button from "./component/button";
-import FinalScoreBoard from "./component/finalScoreBoard";
+import getRandomValue from "../engine/random";
+import { boardBorder } from "../component/UIVariables";
+import { type Score, circleSize } from "../engine/gameVariables";
+import ScoreBoard from "../component/scoreBoard";
+import Button from "../component/button";
+import FinalScoreBoard from "../component/finalScoreBoard";
 
 const initialScore: Score = {
     score: 0,
