@@ -11,142 +11,170 @@ import Button from "../component/button";
 import FinalScoreBoard from "../component/finalScoreBoard";
 
 const initialScore: Score = {
-    score: 0,
-    seconds: 0,
-    totalClicks: 0,
-    clickSpeed: 0,
-    maxSpeed: 0,
-}
+  score: 0,
+  seconds: 0,
+  totalClicks: 0,
+  clickSpeed: 0,
+  clickTime: [],
+  maxSpeed: 0,
+};
 
 export default function Game() {
-    const [windowSize, setWindowSize] = useState<WindowSize>({
-        X: 0,
-        Y: 0,
-    })
-    const [score, setScore] = useState<Score>(initialScore)
-    const [seconds, setSeconds] = useState(0);
-    const [circlePositions, setCirclePositions] = useState<Array<Position>>([])
-    const [isPlaying, setIsPlaying] = useState<boolean>(true)
+  const [windowSize, setWindowSize] = useState<WindowSize>({
+    X: 0,
+    Y: 0,
+  });
+  const [score, setScore] = useState<Score>(initialScore);
+  const [seconds, setSeconds] = useState(0);
+  const [circlePositions, setCirclePositions] = useState<Array<Position>>([]);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
 
-    const resetGameStates = () => {
-        setSeconds(0)
-        setCirclePositions([getPosition()])
-        setScore(initialScore)
-        setIsPlaying(true)
-    }
+  const resetGameStates = () => {
+    setSeconds(0);
+    setCirclePositions([getPosition()]);
+    setScore(initialScore);
+    setIsPlaying(true);
+  };
 
-    useEffect(() => {
-        setWindowSize({
-            X: window.innerWidth,
-            Y: window.innerHeight,
-        })
+  useEffect(() => {
+    setWindowSize({
+      X: window.innerWidth,
+      Y: window.innerHeight,
+    });
 
-        const updateWindowSize = () => {
-            setWindowSize({
-                X: window.innerWidth,
-                Y: window.innerHeight,
-            });
-        };
-    
-        window.addEventListener('resize', updateWindowSize)
+    const updateWindowSize = () => {
+      setWindowSize({
+        X: window.innerWidth,
+        Y: window.innerHeight,
+      });
+    };
 
-        return () => {
-            window.removeEventListener('resize', updateWindowSize)
-        }
+    window.addEventListener("resize", updateWindowSize);
 
-    }, [])
+    return () => {
+      window.removeEventListener("resize", updateWindowSize);
+    };
+  }, []);
 
-    useEffect(() => {
-        setCirclePositions([getPosition()])
+  useEffect(() => {
+    setCirclePositions([getPosition()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [windowSize])
-    
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-        setSeconds((prevSeconds) => prevSeconds + 1);
-        }, 1000);
-    
-        return () => {
-        clearInterval(intervalId);
-        };
-    }, []);
+  }, [windowSize]);
 
-    function getPosition() {return {
-        X: getRandomValue(boardBorder, windowSize.X - boardBorder - circleSize),
-        Y: getRandomValue(boardBorder, windowSize.Y  - boardBorder - circleSize),
-    }}
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setSeconds((prevSeconds) => prevSeconds + 1);
+    }, 1000);
 
-    const clickSpeed = +(seconds === 0 ? 0 : (score.score / seconds).toFixed(2))
-    
-    const updateCirclePosition = (index: number): void => {
-        const newPositions = [...circlePositions]
-        let isOverlapping = true
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
-        while (isOverlapping) {
-            const newPosition = getPosition()
+  function getPosition() {
+    return {
+      X: getRandomValue(boardBorder, windowSize.X - boardBorder - circleSize),
+      Y: getRandomValue(boardBorder, windowSize.Y - boardBorder - circleSize),
+    };
+  }
 
-            isOverlapping = circlePositions.some((position) => {
-                return ((newPosition.X - position.X)**2 + (newPosition.Y - position.Y)**2 < 2*circleSize**2)
-            })
+  let clickSpeed = 0;
+  if (score.clickTime[9] && score.clickTime[0]) {
+    console.log(clickSpeed);
+    clickSpeed = +(10 / (score.clickTime[9] - score.clickTime[0])).toFixed(2);
+  }
 
-            if (!isOverlapping) {
-                newPositions[index] = newPosition
-            }
-        }
+  const updateCirclePosition = (index: number): void => {
+    const newPositions = [...circlePositions];
+    let isOverlapping = true;
 
-        setCirclePositions(newPositions)
+    while (isOverlapping) {
+      const newPosition = getPosition();
+
+      isOverlapping = circlePositions.some((position) => {
+        return (
+          (newPosition.X - position.X) ** 2 +
+            (newPosition.Y - position.Y) ** 2 <
+          2 * circleSize ** 2
+        );
+      });
+
+      if (!isOverlapping) {
+        newPositions[index] = newPosition;
+      }
     }
 
-    useEffect(() => {
-        if (seconds > 0 && seconds % 20 === 0) {
-            updateCirclePosition(circlePositions.length)
-        } 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [seconds])
+    setCirclePositions(newPositions);
+  };
 
-    useEffect(() => {
-        setScore((prevScore) => (
-            {
-                ...prevScore,
-                ["clickSpeed"]: clickSpeed,
-                ["maxSpeed"]:  Math.max(clickSpeed, prevScore.maxSpeed),
-            }))
-    }, [clickSpeed])
+  useEffect(() => {
+    if (seconds > 0 && seconds % 20 === 0) {
+      updateCirclePosition(circlePositions.length);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds]);
 
-    if (isPlaying) {
-        return (
-        <>
-            <HeadComponent />
-            <Board windowSize={windowSize} onClick={() => {setScore((prevScore) => ({...prevScore, ["totalClicks"]: prevScore.totalClicks + 1}))}}>
-                <>
-                    <ScoreBoard score={score}/>
-                    {circlePositions.map((position, index) => 
-                    <Circle 
-                        key={index} 
-                        circlePosition={position} 
-                        onClick={() => {
-                            setScore((prevScore) => ({...prevScore, ["score"]: prevScore.score +1}))
-                            updateCirclePosition(index)
-                        }}
-                        onAnimationEnd={() => {
-                            setScore((prevScore) => ({...prevScore, ["seconds"]: seconds}))
-                            setIsPlaying(false)
-                        }}/>
-                    )}
-                </> 
-            </Board>
-        </>
-        )
-    } else {
-        return (
-        <>
-            <HeadComponent />
-            <Board windowSize={windowSize}>
-                <div className="flex h-full flex-col justify-center">
-                    <Button text={'Start new game'} onClick={resetGameStates}/>
-                    <FinalScoreBoard score={score}/>
-                </div>
-            </Board>
-        </>
-    )}
+  useEffect(() => {
+    setScore((prevScore) => ({
+      ...prevScore,
+      ["clickSpeed"]: clickSpeed,
+      ["maxSpeed"]: Math.max(clickSpeed, prevScore.maxSpeed),
+    }));
+  }, [clickSpeed]);
+
+  if (isPlaying) {
+    return (
+      <>
+        <HeadComponent />
+        <Board
+          windowSize={windowSize}
+          onClick={() => {
+            setScore((prevScore) => ({
+              ...prevScore,
+              ["totalClicks"]: prevScore.totalClicks + 1,
+            }));
+          }}
+        >
+          <>
+            <ScoreBoard score={score} />
+            {circlePositions.map((position, index) => (
+              <Circle
+                key={index}
+                circlePosition={position}
+                onClick={() => {
+                  setScore((prevScore) => ({
+                    ...prevScore,
+                    ["clickTime"]: prevScore.clickTime
+                      .slice(-9)
+                      .concat(seconds),
+                    ["score"]: prevScore.score + 1,
+                  }));
+                  updateCirclePosition(index);
+                }}
+                onAnimationEnd={() => {
+                  setScore((prevScore) => ({
+                    ...prevScore,
+                    ["seconds"]: seconds,
+                  }));
+                  setIsPlaying(false);
+                }}
+              />
+            ))}
+          </>
+        </Board>
+      </>
+    );
+  } else {
+    return (
+      <>
+        <HeadComponent />
+        <Board windowSize={windowSize}>
+          <div className="flex h-full flex-col justify-center">
+            <Button text={"Start new game"} onClick={resetGameStates} />
+            <FinalScoreBoard score={score} />
+          </div>
+        </Board>
+      </>
+    );
+  }
 }
