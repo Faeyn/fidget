@@ -3,20 +3,25 @@ import HeadComponent from "../component/head";
 import type { Position, WindowSize } from "../elements/elementTypes";
 import Circle from "../elements/circle";
 import { useEffect, useState } from "react";
-import getRandomValue from "../engine/random";
-import { boardBorder } from "../component/UIVariables";
-import { type Score, circleSize } from "../engine/gameVariables";
+import {
+  type Score,
+  timeInterval,
+  secondOverTime,
+} from "../engine/gameVariables";
 import ScoreBoard from "../component/scoreBoard";
 import Button from "../component/button";
 import FinalScoreBoard from "../component/finalScoreBoard";
+import { getPosition } from "../engine/getPosition";
+import { getRelativeClickCoordinate } from "../engine/getRelativeClickCoordinate";
+import { getMaxClickSpeed } from "../engine/getMaxClickSpeed";
 
 const initialScore: Score = {
   score: 0,
-  seconds: 0,
+  endTime: 0,
   totalClicks: 0,
-  clickSpeed: 0,
   clickTime: [],
-  maxSpeed: 0,
+  clickLocations: [],
+  maxClickSpeed: 0,
 };
 
 export default function Game() {
@@ -25,13 +30,14 @@ export default function Game() {
     Y: 0,
   });
   const [score, setScore] = useState<Score>(initialScore);
-  const [seconds, setSeconds] = useState(0);
+  const [time, setTime] = useState(0);
   const [circlePositions, setCirclePositions] = useState<Array<Position>>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [mousePosition, setMousePosition] = useState<Position>({ X: 0, Y: 0 });
 
   const resetGameStates = () => {
-    setSeconds(0);
-    setCirclePositions([getPosition()]);
+    setTime(0);
+    setCirclePositions([getPosition(windowSize, circlePositions)]);
     setScore(initialScore);
     setIsPlaying(true);
   };
@@ -49,78 +55,41 @@ export default function Game() {
       });
     };
 
+    const udpateMousePosition = (event: {
+      clientX: number;
+      clientY: number;
+    }) => {
+      setMousePosition({ X: event.clientX, Y: event.clientY });
+    };
+
+    const intervalId = setInterval(() => {
+      setTime((prevTime) => prevTime + 1);
+    }, timeInterval);
+
     window.addEventListener("resize", updateWindowSize);
+    window.addEventListener("mousemove", udpateMousePosition);
 
     return () => {
+      clearInterval(intervalId);
       window.removeEventListener("resize", updateWindowSize);
+      window.removeEventListener("mousemove", udpateMousePosition);
     };
   }, []);
 
   useEffect(() => {
-    setCirclePositions([getPosition()]);
+    setCirclePositions([getPosition(windowSize, circlePositions)]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windowSize]);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setSeconds((prevSeconds) => prevSeconds + 1);
-    }, 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  function getPosition() {
-    return {
-      X: getRandomValue(boardBorder, windowSize.X - boardBorder - circleSize),
-      Y: getRandomValue(boardBorder, windowSize.Y - boardBorder - circleSize),
-    };
-  }
-
-  let clickSpeed = 0;
-  if (score.clickTime[9] && score.clickTime[0]) {
-    console.log(clickSpeed);
-    clickSpeed = +(10 / (score.clickTime[9] - score.clickTime[0])).toFixed(2);
-  }
-
-  const updateCirclePosition = (index: number): void => {
-    const newPositions = [...circlePositions];
-    let isOverlapping = true;
-
-    while (isOverlapping) {
-      const newPosition = getPosition();
-
-      isOverlapping = circlePositions.some((position) => {
-        return (
-          (newPosition.X - position.X) ** 2 +
-            (newPosition.Y - position.Y) ** 2 <
-          2 * circleSize ** 2
-        );
-      });
-
-      if (!isOverlapping) {
-        newPositions[index] = newPosition;
-      }
-    }
-
-    setCirclePositions(newPositions);
-  };
-
-  useEffect(() => {
-    if (seconds > 0 && seconds % 20 === 0) {
-      updateCirclePosition(circlePositions.length);
+    if (time > 0 && (time * secondOverTime) % 3 === 0) {
+      setCirclePositions([
+        ...circlePositions,
+        getPosition(windowSize, circlePositions),
+      ]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seconds]);
-
-  useEffect(() => {
-    setScore((prevScore) => ({
-      ...prevScore,
-      ["clickSpeed"]: clickSpeed,
-      ["maxSpeed"]: Math.max(clickSpeed, prevScore.maxSpeed),
-    }));
-  }, [clickSpeed]);
+  }, [time]);
 
   if (isPlaying) {
     return (
@@ -132,6 +101,10 @@ export default function Game() {
             setScore((prevScore) => ({
               ...prevScore,
               ["totalClicks"]: prevScore.totalClicks + 1,
+              ["clickLocations"]: [
+                ...prevScore.clickLocations,
+                getRelativeClickCoordinate(circlePositions, mousePosition),
+              ],
             }));
           }}
         >
@@ -142,20 +115,29 @@ export default function Game() {
                 key={index}
                 circlePosition={position}
                 onClick={() => {
+                  const newClickTime = score.clickTime.concat(time);
+                  const maxClickspeed = getMaxClickSpeed(newClickTime);
+
                   setScore((prevScore) => ({
                     ...prevScore,
-                    ["clickTime"]: prevScore.clickTime
-                      .slice(-9)
-                      .concat(seconds),
+                    ["clickTime"]: newClickTime,
+                    ["maxClickSpeed"]: maxClickspeed,
                     ["score"]: prevScore.score + 1,
                   }));
-                  updateCirclePosition(index);
+
+                  getMaxClickSpeed;
+                  const newPositions = circlePositions;
+                  newPositions[index] = getPosition(
+                    windowSize,
+                    circlePositions
+                  );
+                  setCirclePositions(newPositions);
                 }}
                 onAnimationEnd={() => {
-                  setScore((prevScore) => ({
-                    ...prevScore,
-                    ["seconds"]: seconds,
-                  }));
+                  setScore({
+                    ...score,
+                    ["endTime"]: time,
+                  });
                   setIsPlaying(false);
                 }}
               />

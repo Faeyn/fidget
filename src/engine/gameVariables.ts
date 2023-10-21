@@ -1,10 +1,16 @@
+import type { Position } from "~/elements/elementTypes"
+
 export const circleSize = 100
+
+export const timeInterval = 100
+
+export const secondOverTime = (timeInterval / 1000)
 
 export type Score = {
     score: number,
-    seconds: number,
+    endTime: number,
     totalClicks: number,
     clickTime: number[],
-    clickSpeed: number,
-    maxSpeed: number,
+    clickLocations: Position[],
+    maxClickSpeed: number,
 }
