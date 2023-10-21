@@ -1,4 +1,4 @@
-import { secondOverTime } from "./gameVariables";
+import { secondOverTime } from "./timer";
 
 export const getMaxClickSpeed = (clickTime: number[]) => {
   const clickSpeeds: number[] = [0];

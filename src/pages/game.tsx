@@ -3,17 +3,14 @@ import HeadComponent from "../component/head";
 import type { Position, WindowSize } from "../elements/elementTypes";
 import Circle from "../elements/circle";
 import { useEffect, useState } from "react";
-import {
-  type Score,
-  timeInterval,
-  secondOverTime,
-} from "../engine/gameVariables";
+import { type Score, intervalNewCircle } from "../engine/gameVariables";
 import ScoreBoard from "../component/scoreBoard";
 import Button from "../component/button";
 import FinalScoreBoard from "../component/finalScoreBoard";
 import { getPosition } from "../engine/getPosition";
 import { getRelativeClickCoordinate } from "../engine/getRelativeClickCoordinate";
 import { getMaxClickSpeed } from "../engine/getMaxClickSpeed";
+import { secondOverTime, timeInterval } from "~/engine/timer";
 
 const initialScore: Score = {
   score: 0,
@@ -82,7 +79,7 @@ export default function Game() {
   }, [windowSize]);
 
   useEffect(() => {
-    if (time > 0 && (time * secondOverTime) % 3 === 0) {
+    if (time > 0 && (time * secondOverTime) % intervalNewCircle === 0) {
       setCirclePositions([
         ...circlePositions,
         getPosition(windowSize, circlePositions),

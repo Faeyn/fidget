@@ -2,9 +2,7 @@ import type { Position } from "~/elements/elementTypes"
 
 export const circleSize = 100
 
-export const timeInterval = 100
-
-export const secondOverTime = (timeInterval / 1000)
+export const intervalNewCircle = 20
 
 export type Score = {
     score: number,
