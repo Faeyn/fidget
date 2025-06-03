@@ -43,3 +43,5 @@ yarn-error.log*
 
 # React Component Preview
 previewConfig.json
+
+.idea

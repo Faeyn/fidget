@@ -2,8 +2,13 @@ import Board from "../component/board";
 import HeadComponent from "../component/head";
 import type { Position, WindowSize } from "../elements/elementTypes";
 import Circle from "../elements/circle";
+import Triangle from "../elements/triangle";
 import { useEffect, useState } from "react";
-import { type Score, intervalNewCircle } from "../engine/gameVariables";
+import {
+  type Score,
+  intervalNewCircle,
+  intervalNewTriangle,
+} from "../engine/gameVariables";
 import ScoreBoard from "../component/scoreBoard";
 import Button from "../component/button";
 import FinalScoreBoard from "../component/finalScoreBoard";
@@ -29,12 +34,16 @@ export default function Game() {
   const [score, setScore] = useState<Score>(initialScore);
   const [time, setTime] = useState(0);
   const [circlePositions, setCirclePositions] = useState<Array<Position>>([]);
+  const [trianglePositions, setTrianglePositions] = useState<Array<Position>>(
+    []
+  );
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [mousePosition, setMousePosition] = useState<Position>({ X: 0, Y: 0 });
 
   const resetGameStates = () => {
     setTime(0);
     setCirclePositions([getPosition(windowSize, circlePositions)]);
+    setTrianglePositions([]);
     setScore(initialScore);
     setIsPlaying(true);
   };
@@ -75,6 +84,7 @@ export default function Game() {
 
   useEffect(() => {
     setCirclePositions([getPosition(windowSize, circlePositions)]);
+    setTrianglePositions([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windowSize]);
 
@@ -83,6 +93,13 @@ export default function Game() {
       setCirclePositions([
         ...circlePositions,
         getPosition(windowSize, circlePositions),
+      ]);
+    }
+
+    if (time > 0 && (time * secondOverTime) % intervalNewTriangle === 0) {
+      setTrianglePositions([
+        ...trianglePositions,
+        getPosition(windowSize, trianglePositions),
       ]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,10 +124,12 @@ export default function Game() {
         >
           <>
             <ScoreBoard score={score} />
+
+            {/* Manage circles */}
             {circlePositions.map((position, index) => (
               <Circle
                 key={index}
-                circlePosition={position}
+                position={position}
                 onClick={() => {
                   const newClickTime = score.clickTime.concat(time);
                   const maxClickspeed = getMaxClickSpeed(newClickTime);
@@ -122,7 +141,6 @@ export default function Game() {
                     ["score"]: prevScore.score + 1,
                   }));
 
-                  getMaxClickSpeed;
                   const newPositions = circlePositions;
                   newPositions[index] = getPosition(
                     windowSize,
@@ -139,7 +157,18 @@ export default function Game() {
                 }}
               />
             ))}
+
+            {/* Manage triangles */}
+            {trianglePositions.map((position, index) => (
+              <Triangle
+                key={index}
+                position={position}
+                onClick={() => {}}
+                onAnimationEnd={() => {}}
+              />
+            ))}
           </>
+           
         </Board>
       </>
     );
