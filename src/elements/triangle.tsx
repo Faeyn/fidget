@@ -22,7 +22,21 @@ const Triangle: React.FC<itemProps> = ({
   };
   return (
     <>
-      <div className="h-0 w-0 border-b-[100px] border-l-[50px] border-r-[50px] border-b-black border-l-transparent border-r-transparent" />
+      <div
+        className={`triangle`}
+        style={{
+          position: "fixed",
+          left: position.X,
+          top: position.Y,
+        }}
+        onAnimationEnd={
+          !isClicked
+            ? () => {
+                ("");
+              }
+            : onAnimationEnd
+        }
+      />
     </>
   );
 };

@@ -97,10 +97,7 @@ export default function Game() {
     }
 
     if (time > 0 && (time * secondOverTime) % intervalNewTriangle === 0) {
-      setTrianglePositions([
-        ...trianglePositions,
-        getPosition(windowSize, trianglePositions),
-      ]);
+      setTrianglePositions([getPosition(windowSize, trianglePositions)]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [time]);
@@ -163,12 +160,17 @@ export default function Game() {
               <Triangle
                 key={index}
                 position={position}
-                onClick={() => {}}
+                onClick={() => {
+                  setScore({
+                    ...score,
+                    ["endTime"]: time,
+                  });
+                  setIsPlaying(false);
+                }}
                 onAnimationEnd={() => {}}
               />
             ))}
           </>
-           
         </Board>
       </>
     );

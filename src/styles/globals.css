@@ -3,21 +3,39 @@
 @tailwind utilities;
 
 @layer base {
-    .circle {
-      border-radius: 50%;
-      background-color: #0000FF;
-      border: 10px;
-      border: solid;
-      border-color: black;
-    }
-    .innerCircle {
-      border-radius: 50%;
-      background-color: #00aaff;
-      border: 10px;
-      border: solid;
-      border-color: black;
-    }
+  .circle {
+    border-radius: 50%;
+    background-color: #0000ff;
+    border: 10px;
+    border: solid;
+    border-color: black;
   }
+  .innerCircle {
+    border-radius: 50%;
+    background-color: #00aaff;
+    border: 10px;
+    border: solid;
+    border-color: black;
+  }
+  .triangle {
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 50px solid #ff0000;
+    animation: scaleUp 5s forwards;
+    transform-origin: center;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(2);
+  }
+}
 
 @keyframes clickedAnimation {
   0% {
