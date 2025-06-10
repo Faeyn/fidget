@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import {
   type Score,
   intervalNewCircle,
-  intervalNewTriangle,
+  startTriangle,
 } from "../engine/gameVariables";
 import ScoreBoard from "../component/scoreBoard";
 import Button from "../component/button";
@@ -96,7 +96,7 @@ export default function Game() {
       ]);
     }
 
-    if (time > 0 && (time * secondOverTime) % intervalNewTriangle === 0) {
+    if (time > 0 && time * secondOverTime === startTriangle) {
       setTrianglePositions([getPosition(windowSize, trianglePositions)]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,10 +139,10 @@ export default function Game() {
                   }));
 
                   const newPositions = circlePositions;
-                  newPositions[index] = getPosition(
-                    windowSize,
-                    circlePositions
-                  );
+                  newPositions[index] = getPosition(windowSize, [
+                    ...circlePositions,
+                    ...trianglePositions,
+                  ]);
                   setCirclePositions(newPositions);
                 }}
                 onAnimationEnd={() => {
@@ -167,7 +167,14 @@ export default function Game() {
                   });
                   setIsPlaying(false);
                 }}
-                onAnimationEnd={() => {}}
+                onAnimationEnd={() => {
+                  setTrianglePositions([
+                    getPosition(windowSize, [
+                      ...circlePositions,
+                      ...trianglePositions,
+                    ]),
+                  ]);
+                }}
               />
             ))}
           </>

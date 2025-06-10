@@ -7,35 +7,29 @@ const Triangle: React.FC<itemProps> = ({
   onAnimationEnd,
 }): JSX.Element => {
   const [isAnimating, setIsAnimating] = useState(true);
-  const [isClicked, setIsClicked] = useState(false);
 
-  const handleClick = () => {
-    setIsClicked(true);
+  const handleAnimationEnd = () => {
     setIsAnimating(false);
 
     // Reset animation after a brief delay
     setTimeout(() => {
+      onAnimationEnd();
       setIsAnimating(true);
-      setIsClicked(false);
-      onClick();
     }, 15);
   };
   return (
     <>
       <div
-        className={`triangle`}
+        className={`triangle ${
+          isAnimating ? "animate-triangle-animation" : ""
+        }`}
         style={{
           position: "fixed",
           left: position.X,
           top: position.Y,
         }}
-        onAnimationEnd={
-          !isClicked
-            ? () => {
-                ("");
-              }
-            : onAnimationEnd
-        }
+        onAnimationEnd={handleAnimationEnd}
+        onClick={onClick}
       />
     </>
   );

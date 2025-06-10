@@ -4,7 +4,7 @@ export const circleSize = 100;
 export const intervalNewCircle = 20;
 
 export const triangleSize = 50;
-export const intervalNewTriangle = 2;
+export const startTriangle = 5;
 
 export type Score = {
   score: number;
